@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 
 _SIMILARITY_THRESHOLD = 0.8
-_MIN_DISTANCE_BETWEEN_POINTS = 1.0
+_MIN_PIXEL_DISTANCE_BETWEEN_POINTS = 10.0
 
 
 def _get_distance_between_points(point1: list[int], point2: list[int]):
@@ -22,10 +22,14 @@ def match_template(source_image_path: str, template_image_path: str):
     for pt in zip(*loc[::-1]):
         bbox = [list(pt), [pt[0] + w, pt[1] + h]]
 
+        # OpenCV may generate bboxes where one compared to another is only 1px
+        # away which gives the same exact result from human standpoint
+        # thus we wish to filter out bboxes where distance between bboxes is
+        # not at least 10px
         if all(
             [
                 _get_distance_between_points(b[0], bbox[0])
-                > _MIN_DISTANCE_BETWEEN_POINTS
+                > _MIN_PIXEL_DISTANCE_BETWEEN_POINTS
                 for b in bboxes
             ]
         ):
@@ -43,4 +47,3 @@ if __name__ == "__main__":
 
     bboxes = match_template(source_image_path, template_image_path)
     print(bboxes)
-    print(len(bboxes))
