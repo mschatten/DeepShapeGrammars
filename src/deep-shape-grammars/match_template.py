@@ -10,7 +10,10 @@ def _get_distance_between_points(point1: list[int], point2: list[int]):
     return np.linalg.norm(np.array(point1) - np.array(point2))
 
 
-def match_template(source_image_path: str, template_image_path: str):
+def generate_similar_bboxes_matching_template(
+    source_image_path: str, template_image_path: str
+):
+    # we may as well accept here numpy list of RGB pixels (matrix)
     img_rgb = cv.imread(source_image_path)
     img_gray = cv.cvtColor(img_rgb, cv.COLOR_BGR2GRAY)
     template = cv.imread(template_image_path, 0)
@@ -45,5 +48,7 @@ if __name__ == "__main__":
     source_image_path = sys.argv[1]
     template_image_path = sys.argv[2]
 
-    bboxes = match_template(source_image_path, template_image_path)
+    bboxes = generate_similar_bboxes_matching_template(
+        source_image_path, template_image_path
+    )
     print(bboxes)
