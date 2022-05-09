@@ -13,7 +13,7 @@ echo ""
 
 cd src
 sudo cp -r deep-shape-grammars $INSTALL_PATH
-chmod +x $INSTALL_PATH/deep-shape-grammars/deep-shape-grammars.py
+sudo chmod +x $INSTALL_PATH/deep-shape-grammars/deep-shape-grammars.py
 
 echo "Finished!"
 

@@ -27,6 +27,9 @@ from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import GLib
 
+import tempfile
+
+
 import sys
 import shapegrammar as sg
 
@@ -38,7 +41,7 @@ PROC_NAME = 'python-fu-deep-shape-grammars'
 
 RESPONSE_BROWSE, RESPONSE_CLEAR, RESPONSE_NEW = range(3)
 
-def run(procedure, args, data):
+def run(procedure, run_mode, image, n_drawables, drawables, args, data):
     GimpUi.init ("deep-shape-grammars.py")
 
     
@@ -96,6 +99,33 @@ def run(procedure, args, data):
 
         def new_grammar( self ):
             print( 'Creating new grammar' )
+            #image = GObject.Value( Gimp.Image, image )
+            layer = image.get_active_layer()
+            sel = image.get_selection()
+            pixels = sel.get_data()
+
+            #get_pixel_rgn(0, 0, image.width, image.height)
+
+            print( pixels )
+
+            print( image )
+            print( sel )
+
+            print( dir( sel ) )
+
+            print( sel.bounds( image ) )
+
+            #result = Gimp.get_pdb().run_procedure('file-png-save', [
+            #    GObject.Value(Gimp.RunMode, Gimp.RunMode.NONINTERACTIVE),
+            #    GObject.Value( Gimp.Image, image ),
+            #    GObject.Value(  ),
+            #    GObject.Value(Gio.File, next(tempfile._get_candidate_names())),
+            #])
+
+
+            
+            temp_name = next(tempfile._get_candidate_names())
+            
             sg.new_grammar()
 
     DSGDialog().run()
@@ -125,7 +155,7 @@ class DeepShapeGrammar( Gimp.PlugIn ):
 
     def do_create_procedure(self, name):
         if name == PROC_NAME:
-            procedure = Gimp.Procedure.new(self, name,
+            procedure = Gimp.ImageProcedure.new(self, name,
                                            Gimp.PDBProcType.PLUGIN,
                                            run, None)
             procedure.set_menu_label(N_("_Deep Shape Grammars"))
