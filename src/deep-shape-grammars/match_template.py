@@ -5,6 +5,7 @@ import numpy as np
 
 _SIMILARITY_THRESHOLD = 0.8
 _MIN_PIXEL_DISTANCE_BETWEEN_POINTS = 10.0
+_DEGREES_TO_ROTATE_IMAGE = [0, 90, 180, 270]
 
 
 def _get_distance_between_points(point1: list[int], point2: list[int]):
@@ -55,7 +56,7 @@ def generate_similar_bboxes_matching_template(
     w, h = template.shape[::-1]
 
     bboxes = []
-    for degree in [0, 90, 180, 270]:
+    for degree in _DEGREES_TO_ROTATE_IMAGE:
         rotated_template = _rotate_image(template, degree)
 
         res = cv.matchTemplate(img_gray, rotated_template, cv.TM_CCOEFF_NORMED)
