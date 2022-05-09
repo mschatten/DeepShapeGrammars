@@ -122,6 +122,15 @@ def run(procedure, run_mode, image, n_drawables, drawables, args, data):
             #    GObject.Value(Gio.File, next(tempfile._get_candidate_names())),
             #])
 
+            '''
+            (file-png-save TRUE
+			       img
+			       (aref (cadr (gimp-image-get-layers img)) 0)
+			       new-name
+			       new-name
+			       TRUE 9 FALSE TRUE FALSE FALSE TRUE)
+            '''
+
 
             
             temp_name = next(tempfile._get_candidate_names())
