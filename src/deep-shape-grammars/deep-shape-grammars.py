@@ -102,11 +102,11 @@ def run(procedure, run_mode, image, n_drawables, drawables, args, data):
             #image = GObject.Value( Gimp.Image, image )
             layer = image.get_active_layer()
             sel = image.get_selection()
-            pixels = sel.get_data()
+            #pixels = sel.get_data()
 
             #get_pixel_rgn(0, 0, image.width, image.height)
 
-            print( pixels )
+            #print( pixels )
 
             print( image )
             print( sel )
