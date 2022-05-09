@@ -4,6 +4,7 @@ import numpy as np
 
 _SIMILARITY_THRESHOLD = 0.8
 _MIN_PIXEL_DISTANCE_BETWEEN_POINTS = 10.0
+_RESULT_IMAGE_NAME = "res.png"
 
 
 def _get_distance_between_points(point1: list[int], point2: list[int]):
@@ -11,7 +12,7 @@ def _get_distance_between_points(point1: list[int], point2: list[int]):
 
 
 def generate_similar_bboxes_matching_template(
-    source_image_path: str, template_image_path: str
+    source_image_path: str, template_image_path: str, should_output_drawing: bool
 ):
     # we may as well accept here numpy list of RGB pixels (matrix)
     img_rgb = cv.imread(source_image_path)
@@ -37,18 +38,23 @@ def generate_similar_bboxes_matching_template(
             ]
         ):
             bboxes.append(bbox)
+            if should_output_drawing:
+                cv.rectangle(img_rgb, bbox[0], bbox[1], (0, 0, 255), 2)
 
+    if should_output_drawing:
+        cv.imwrite(_RESULT_IMAGE_NAME, img_rgb)
     return bboxes
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3 and len(sys.argv) > 4:
         raise ValueError("Must provide path to source image & template image!")
 
     source_image_path = sys.argv[1]
     template_image_path = sys.argv[2]
+    should_output_drawing = sys.argv[3] if len(sys.argv) == 4 else False
 
     bboxes = generate_similar_bboxes_matching_template(
-        source_image_path, template_image_path
+        source_image_path, template_image_path, should_output_drawing
     )
     print(bboxes)
