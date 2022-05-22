@@ -17,6 +17,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import gi
+import os
 gi.require_version('Gimp', '3.0')
 gi.require_version('GimpUi', '3.0')
 from gi.repository import Gimp
@@ -32,6 +33,7 @@ import tempfile
 
 import sys
 import shapegrammar as sg
+from match_template import generate_similar_bboxes_matching_template
 
 import gettext
 _ = gettext.gettext
@@ -114,6 +116,65 @@ def run(procedure, run_mode, image, n_drawables, drawables, args, data):
             print( dir( sel ) )
 
             print( sel.bounds( image ) )
+
+            def get_image():
+                im = Gimp.get_pdb().run_procedure( 'gimp-get-images', [ ] )
+                image = im.index( 2 ).data[ 0 ]
+
+                return image
+
+            def save_image(img, layer, path):
+                return Gimp.get_pdb().run_procedure( 'file-png-save', [
+                    GObject.Value( Gimp.RunMode, Gimp.RunMode.NONINTERACTIVE ),
+                    GObject.Value( Gimp.Image, img ),
+                    GObject.Value( GObject.TYPE_INT, 1 ),
+                    GObject.Value( Gimp.ObjectArray, Gimp.ObjectArray.new( Gimp.Drawable, [ layer ], False ) ),
+                    GObject.Value( Gio.File, Gio.File.new_for_path( path ) ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, 0 ),
+                    GObject.Value( GObject.TYPE_INT, 2 ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, True ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, False ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, True ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, True ),
+                    GObject.Value( GObject.TYPE_BOOLEAN, True ),
+                ])
+
+            def get_image_selection_bounds(img):
+                bounds = Gimp.get_pdb().run_procedure( 'gimp-selection-bounds', [
+                    GObject.Value( Gimp.Image, img )
+                ])
+                
+                return bounds.index(1), bounds.index(2), bounds.index(3), bounds.index(4), bounds.index(5)
+
+            def corp_image(img, x1, y1, x2, y2):
+                Gimp.get_pdb().run_procedure( 'gimp-image-crop', [
+                    GObject.Value( Gimp.Image, img ),
+                    x2 - x1,
+                    y2 - y1,
+                    x1,
+                    y1
+                ])
+
+            path = os.path.dirname( sys.argv[0] )
+            active_image = get_image()
+
+            # save org image
+            org_img = active_image.duplicate()
+            org_layer = org_img.merge_visible_layers( Gimp.MergeType.CLIP_TO_IMAGE )
+            org_img_path = f'{path}/image.png'
+            save_image(org_img, org_layer, org_img_path )
+
+            # save selection image
+            selection_img = active_image.duplicate()
+            selection_exists, x1, y1, x2, y2 = get_image_selection_bounds(selection_img)
+            corp_image( selection_img, x1, y1, x2, y2 )
+            selection_layer = selection_img.merge_visible_layers( Gimp.MergeType.CLIP_TO_IMAGE )
+            selection_img_path = f'{path}/selection.png'
+            save_image( selection_img, selection_layer, selection_img_path )
+
+            bboxes = generate_similar_bboxes_matching_template( org_img_path, selection_img_path, False )
+            print( bboxes )
+
 
             #result = Gimp.get_pdb().run_procedure('file-png-save', [
             #    GObject.Value(Gimp.RunMode, Gimp.RunMode.NONINTERACTIVE),
