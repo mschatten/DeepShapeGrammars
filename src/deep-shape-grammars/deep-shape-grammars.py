@@ -101,21 +101,6 @@ def run(procedure, run_mode, image, n_drawables, drawables, args, data):
 
         def new_grammar( self ):
             print( 'Creating new grammar' )
-            #image = GObject.Value( Gimp.Image, image )
-            layer = image.get_active_layer()
-            sel = image.get_selection()
-            #pixels = sel.get_data()
-
-            #get_pixel_rgn(0, 0, image.width, image.height)
-
-            #print( pixels )
-
-            print( image )
-            print( sel )
-
-            print( dir( sel ) )
-
-            print( sel.bounds( image ) )
 
             def get_image():
                 im = Gimp.get_pdb().run_procedure( 'gimp-get-images', [ ] )
@@ -166,35 +151,14 @@ def run(procedure, run_mode, image, n_drawables, drawables, args, data):
 
             # save selection image
             selection_img = active_image.duplicate()
-            selection_exists, x1, y1, x2, y2 = get_image_selection_bounds(selection_img)
+            _, x1, y1, x2, y2 = get_image_selection_bounds(selection_img)
             corp_image( selection_img, x1, y1, x2, y2 )
             selection_layer = selection_img.merge_visible_layers( Gimp.MergeType.CLIP_TO_IMAGE )
             selection_img_path = f'{path}/selection.png'
             save_image( selection_img, selection_layer, selection_img_path )
 
             bboxes = generate_similar_bboxes_matching_template( org_img_path, selection_img_path, False )
-            print( bboxes )
-
-
-            #result = Gimp.get_pdb().run_procedure('file-png-save', [
-            #    GObject.Value(Gimp.RunMode, Gimp.RunMode.NONINTERACTIVE),
-            #    GObject.Value( Gimp.Image, image ),
-            #    GObject.Value(  ),
-            #    GObject.Value(Gio.File, next(tempfile._get_candidate_names())),
-            #])
-
-            '''
-            (file-png-save TRUE
-			       img
-			       (aref (cadr (gimp-image-get-layers img)) 0)
-			       new-name
-			       new-name
-			       TRUE 9 FALSE TRUE FALSE FALSE TRUE)
-            '''
-
-
-            
-            temp_name = next(tempfile._get_candidate_names())
+            print( bboxes ) # should print or return?
             
             sg.new_grammar()
 
